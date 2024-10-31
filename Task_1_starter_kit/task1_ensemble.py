@@ -56,6 +56,7 @@ class Ensemble:
         self.save_path = save_path
         self.starting_cash = starting_cash
         self.current_btc = 0
+<<<<<<< HEAD
         self.position = [
             0,
         ]
@@ -66,6 +67,12 @@ class Ensemble:
         self.cash = [
             starting_cash,
         ]
+=======
+        self.position = [0]
+        self.btc_assets = [0]
+        self.net_assets = [starting_cash]
+        self.cash = [starting_cash]
+>>>>>>> e32e2df39450cb84f7b3c749f01ae4c9579485a9
         self.agent_classes = agent_classes
 
         self.from_env_step_is = None
@@ -91,10 +98,25 @@ class Ensemble:
 
         self.firstbpi = True
 
+<<<<<<< HEAD
+=======
+    def save_ensemble(self):
+        """Saves the ensemble of agents to a directory."""
+        ensemble_dir = os.path.join(self.save_path, "ensemble_models")
+        os.makedirs(ensemble_dir, exist_ok=True)
+        for idx, agent in enumerate(self.agents):
+            agent_name = self.agent_classes[idx].__name__
+            agent_dir = os.path.join(ensemble_dir, agent_name)
+            os.makedirs(agent_dir, exist_ok=True)
+            agent.save_or_load_agent(agent_dir, if_save=True)
+        print(f"Ensemble models saved in directory: {ensemble_dir}")
+
+>>>>>>> e32e2df39450cb84f7b3c749f01ae4c9579485a9
     def ensemble_train(self):
         args = self.args
 
         for agent_class in self.agent_classes:
+<<<<<<< HEAD
             # Set training instance args
             args.agent_class = agent_class
 
@@ -252,6 +274,15 @@ class Ensemble:
         final_roma = return_over_max_drawdown(returns)
 
         # print(action_ints)
+=======
+
+            args.agent_class = agent_class
+
+            agent = self.train_agent(args=args)
+            self.agents.append(agent)
+
+        self.save_ensemble()
+>>>>>>> e32e2df39450cb84f7b3c749f01ae4c9579485a9
 
     def _majority_vote(self, actions):
         """handles tie breaks by returning first element of the most common ones"""
@@ -327,11 +358,14 @@ class Ensemble:
 
         import torch as th
 
+<<<<<<< HEAD
         """
         Train window logic. Handle date range management outside 
         of the training loop, and just take care of the exact steps in here
         """
 
+=======
+>>>>>>> e32e2df39450cb84f7b3c749f01ae4c9579485a9
         if_train = True
         while if_train:
             buffer_items = agent.explore_env(env, horizon_len)
@@ -373,7 +407,10 @@ class Ensemble:
         agent.save_or_load_agent(cwd, if_save=True)
         if if_save_buffer and hasattr(buffer, "save_or_load_history"):
             buffer.save_or_load_history(cwd, if_save=True)
+<<<<<<< HEAD
         # saves the agent into a dir check erl_config.py 83
+=======
+>>>>>>> e32e2df39450cb84f7b3c749f01ae4c9579485a9
 
         self.from_env_step_is = env.step_is
         return agent
@@ -417,10 +454,14 @@ def run(save_path, agent_list, log_rules=False):
     args.soft_update_tau = 2e-6
     args.learning_rate = 2e-6
     args.batch_size = 512
+<<<<<<< HEAD
     # args.batch_size = 2
     args.break_step = int(32e4)
     # args.break_step = int(32e3)
     # args.break_step = int(1)
+=======
+    args.break_step = int(32)  # TODO reset to 32e4
+>>>>>>> e32e2df39450cb84f7b3c749f01ae4c9579485a9
     args.buffer_size = int(max_step * 32)
     args.repeat_times = 2
     args.horizon_len = int(max_step * 4)
@@ -439,12 +480,19 @@ def run(save_path, agent_list, log_rules=False):
         args,
     )
     ensemble_env.ensemble_train()
+<<<<<<< HEAD
     ensemble_env.multi_trade()
+=======
+>>>>>>> e32e2df39450cb84f7b3c749f01ae4c9579485a9
 
 
 if __name__ == "__main__":
 
     run(
+<<<<<<< HEAD
         "exps/one_each_double_tie",
+=======
+        "ensemble_teamname",
+>>>>>>> e32e2df39450cb84f7b3c749f01ae4c9579485a9
         [AgentD3QN, AgentDoubleDQN, AgentDoubleDQN, AgentTwinD3QN],
     )
