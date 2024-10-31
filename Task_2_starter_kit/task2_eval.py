@@ -13,8 +13,8 @@ from task2_config import Task2Config
 
 
 # Date ranges for the starter solution. You may withold some of the training data and use it as validation data
-END_DATE = None
-START_DATE = None
+END_DATE = "2023-12-16"
+START_DATE = "2020-01-01"
 
 """a very simple env whost state space is only the data"""
 STOCK_TICKERS_HIGHEST_CAP_US = [
