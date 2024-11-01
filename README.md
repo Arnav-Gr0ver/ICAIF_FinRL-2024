@@ -1,62 +1,78 @@
-# FinRL Contest 2024
-This repository contains the starter kit and tutorials for the ACM ICAIF 2024 FinRL Contest.
+# FinRL task 2
+This task aims to develop LLMs that can generate and engineer effective signals from news by using Reinforcement Learning from Market Feedback (RLMF).
+
+In this task, the LLM will be used to generate one type of signal (e.g., a sentiment score) based on the content of news. Contestants will develop models that leverage RLMF to adjust the signals based on the market feedback. 
+
+The LLM should be loadable with huggingface and do inference on 20GB GPU.
+
+The quality of the trading signals will be evaluated with a fixed time exit strategy that can either hold, long or short a given stock.  
 
 
-## Outline
-  - [Tutorial](#tutorial)
-  - [Task 1 Starter Kit](#task-1-starter-kit)
-  - [Task 2 Starter Kit](#task-2-starter-kit)
-  - [Report Submission Requirement](#report-submission-requirement)
-  - [Resources](#resources)
+## Datasets
 
+`task2_dataset.zip` contains:
+- `task2_stocks.csv`: an OHLCV dataset of a list of stocks.
+- `task2_news.csv`: a corresponding news dataset for the list of stocks.
 
-## Tutorial
-| Task | Model | Environment | Dataset | Link |
-| ---- |------ | ----------- | ------- | ---- |
-<<<<<<< HEAD
-=======
-| Stock Price Prediction | Linear Regression | -- | OHLCV | [Demo](https://github.com/Open-Finance-Lab/FinRL_Contest_2024/blob/main/Tutorials/Example_Linear_Regression.ipynb) |
->>>>>>> e32e2df39450cb84f7b3c749f01ae4c9579485a9
-| Stock Trading | PPO | Stock Trading Environment | OHLCV | [Demo](https://github.com/Open-Finance-Lab/FinRL_Contest_2024/blob/main/Tutorials/FinRL_stock_trading_demo.ipynb) |
-| Stock Trading @ [FinRL Contest 2023](https://open-finance-lab.github.io/finrl-contest.github.io/)| PPO | Stock Trading Environment | OHLCV | [Baseline solution](https://github.com/Open-Finance-Lab/FinRL_Contest_2024/tree/main/Tutorials/FinRL_Contest_2023_Task_1_baseline_solution) |
-| Stock Trading | Ensemble | Stock Trading Environment | OHLCV | [Demo](https://github.com/Open-Finance-Lab/FinRL_Contest_2024/blob/main/Tutorials/FinRL_Ensemble_StockTrading_ICAIF_2020.ipynb) for [paper](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3690996)|
-| Task 1 Crypto Trading Ensemble (requires the files in the starter kit to run) | Ensemble | Crypto Trading Environment | BTC LOB 1sec | [Code](https://github.com/Open-Finance-Lab/FinRL_Contest_2024/tree/main/Tutorials/Task_1_tutorial) |
-| Sentiment Analysis with Market Feedback | ChatGLM2-6B | -- | Eastmoney News | [Code](https://github.com/AI4Finance-Foundation/FinGPT/tree/master/fingpt/FinGPT_Sentiment_Analysis_v1/FinGPT_v1.0) |
+Contestants are free to use external datasets to deveop RLMF methods and fine-tune the LLMs. The evaluation phase will use the testing datasets with the same fields as the dataset provided. 
 
+## Starter Kit Descriptions
+We use the sentiment score as an example in our starter kit. You can improve on this sentiment analysis or generate your own signal. 
 
+The starter kit includes:
+- `task2_dataset.zip`
+- `task2_env.py`: an example of environment to utilize RLMF. It defines the state and action space for the LLM agent to explore. This environment generates reward signals based on the stock price movement (market feedback) and sentiment score (LLM output). You are free to make changes or write your own environment.
+- `task2_news.py`: it contains the function to read the news dataset.
+- `task2_stocks.py`: it contains the function to dowload the OHLCV dataset from yfinance.
+- `task2_signal.py`: it contains the prompt and code to use the LLM to generate sentiment score. In this file you may change the prompt to generate various other signals. For example you can change the range of sentiment scores as long as the thresholds are set to 30% of the maximum and minimum value. (We will evaluate using these thresholds so please do not use other values)
+- `task2_train.py`: it imports a model and tokenizer. It calls helper functions from the other task2_ files to fetch stock tickers, fetch appropriate news to tickers, use the environment in order to fine-tune the LLM.
+- `task2_eval.py`: we provide a sample evaluation file that shows how you can evaluate your model using a simple strategy.
+- `task2_config.py`: We provide a configuration class that is used for both training and evaluation. Both the train and evaluation file use this class. Not all parameters need to be used in training or evaluation, and we describe their uses in detail in the enxt section.
 
+parameters you may set freely:
+- `END_DATE`: you may set your own training ranges. 
+- `START_DATE`
+- `signal_strengh` You can set a custom signal range for your model to learn to estimate.
+- datasets: you may partition the stock and news datasets into validation datasets. Using the full training dataset before training might help you understand the baseline performance of your model
+- signals: we provide a sample signal generation function. As with the training, you are free to provide your own signal generation function
+- `train steps`: you may change the number of training steps that your model does. We set this to 50 in the demo kit, but we recommend setting it to at least the length of your training data.
 
-## Task 1 Starter Kit
+## Evaluation Template
+You may use this template to evaluate your models in a framework aligned to how we will be evaluating your submissions. We provide some hyperparameters and configuration settings to demonstrate how to use the template. The template uses a config class to localize configurations for your convenience. You may create a validation set from the training data and use that with the evaluation class to test your model on out of sample data. 
 
-Please see [Task_1_starter_kit](https://github.com/Open-Finance-Lab/FinRL_Contest_2024/tree/main/Task_1_starter_kit) folder.
+Your model will generate a signal for each ticker each timestep which will be used in the evaluation strategy to open simualted positions. The demo code tracks returns, cumulative returns and win/loss rate, which are important metrics that allow us to compute many other metrics from them. You may use additional metrics in your own evaluation to better understand how your models are performing. 
 
-<<<<<<< HEAD
-=======
-**New notes for clarifications**
+The evaluation kit includes:
+- `task2_eval.py`: this file contains a configuration class, code to generate signals and evaluate the model performance and code to log model performance
+- model loader: we show how to use huggingface to load models 
 
-The basic requirement is that your model should be able to interact with the environment. The code for training agent and ensemble is just an example solution for your reference.
+parameters you may set freely:
+- `END_DATE`: for your own evaluation. It should be after the start date, see training template
+- `START_DATE`
+- `config.signal_strengh`
+- datasets: you may partition the stock and news datasets into validation datasets. Using the full training dataset before training might help you understand the baseline performance of your model
+- signals: we provide a sample signal generation function. As with the training, you are free to provide your own signal generation function
 
-1. You are free to apply any method for ensemble learning. (For example, You can add new agents, use different ensemble algorithms, adjust hyperparameters, etc) The code provided is just to help get started and we encourage innovation.
-2. You are not required to stick to the 8 features we provide. But for evaluation purpose, please make sure that your new technical factors, if any, can be calculated based on the unseen data. Please include this code and state clearly in readme.
-3. We will use the provided environment to evaluate. So it is not encouraged to change the existing parameters in the environment. However, you can fully utilize the environment settings and the massively parallel simulation.
-4. To encourage innovation, if you want to add new mechanisms or use the unused settings (e.g. short sell) in the environment, please also submit your environment, ensure it works with your agent for evaluation, and describe the new changes in the readme.
+### Evaluation strategy
+The evaluation strategy opens a long and short position on the 3 stocks with the strongest positive and negative signals respectively in the following pattern: 
+- Your model will predict a signal as a numerical value in the range that you provide
+- Our strategy takes the top 3 and bottom 3 signal scores and checks if they exceed the thresholds. (Positive signal should exceed the 30% boundary, and negative signal should be less than the -30% boundary)
+- The strategy will then long and short these stocks depending on their signal score with a fixed lookahead of 3 days.
 
->>>>>>> e32e2df39450cb84f7b3c749f01ae4c9579485a9
+## Evaluation and Submission guidelines
+Please submit your model and appropriate tokenizer, as well as any files that are needed to run your submission. Evaluation will be done by importing your submissions into the evaluation file to execute all submissions on an identical platform. We ask contestants to therefore submit all of their relevant materials whilst maintaining the endpoints in the other task2 files to facilitate testing.
 
+Please provide a readme that describes your submission and explains important things to note when running it so that we can ensure we run your submission as it was intended.
 
-## Task 2 Starter Kit
-
-Please see [Task_2_starter_kit](https://github.com/Open-Finance-Lab/FinRL_Contest_2024/tree/main/Task_2_starter_kit) folder.
-
-
-## Report Submission Requirement
-Each team should also submit a 1-2 page report for the corresponding task they choose with the [ACM sigconf template](https://www.overleaf.com/latex/templates/acm-conference-proceedings-primary-article-template/wbvnghjbzwpc) through Open Review. The title should start with “FinRL Contest 2024 Task I” or “FinRL Contest 2024 Task II.”
-
-## Resources
-Useful materials and resources for contestants to learn about FinRL, including APIs and more tutorials:
-* [FinRL](https://github.com/AI4Finance-Foundation/FinRL)
-* [FinRL-Meta](https://github.com/AI4Finance-Foundation/FinRL-Meta)
-* [FinRL Tutorials](https://github.com/AI4Finance-Foundation/FinRL-Tutorials)
-
-
+```
+├── finrl-contest-task-2 
+│ ├── trained_models # Your fine-tuned LLM weights.
+│ ├── task2_signal.py # File for your signal 
+│ ├── task2_eval.py # File to load your model, tokenizer, and prompt for evaluation.
+│ ├── task2_config.py # File for the evaluation configuration.
+│ ├── task2_env.py # File for environment, this should include your reward function.
+│ ├── readme.md # File to explain the your code
+│ ├── requirements.txt # Have it if adding any new packages
+│ ├── And any additional scripts you create
+```
 
