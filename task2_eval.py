@@ -6,20 +6,11 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from tqdm import tqdm
 import numpy as np
-import os
-from huggingface_hub import login
 
 from task2_news import get_news
 from task2_signal import generate_eval_signal
 from task2_config import Task2Config
 
-HF_TK = os.getenv("HF_TK")
-
-if HF_TK:
-    login(HF_TK)
-    print("Successfully logged in to Hugging Face.")
-else:
-    print("Access token not found. Please set HF_TOKEN in your environment.")
 
 # Date ranges for the starter solution. You may withold some of the training data and use it as validation data
 END_DATE = "2023-12-16"
@@ -68,7 +59,7 @@ daily_returns = []
 
 # data
 
-stock_data = pd.read_csv("task2_eval_stocks.csv")
+stock_data = pd.read_csv("task2_stocks.csv")
 
 # this is simply for logging to see how your model is performing. We will not be evaluating on threshold trading returns
 logging_cum_returns_df_threshold_based = []
@@ -101,7 +92,7 @@ for date in tqdm(eval_config.eval_dates, desc="Evaluating..."):
             model,
             device,
             news,
-            prices.copy().drop("future_close", axis=1)[prices["Ticker"] == ticker],
+            prices.copy().drop("Adj Close", axis=1)[prices["Ticker"] == ticker],
             eval_config.signal_strengh,
             eval_config.threshold,
         )
@@ -109,7 +100,7 @@ for date in tqdm(eval_config.eval_dates, desc="Evaluating..."):
         ticker_signals[ticker] = signal_score
 
         close_price = prices.loc[prices["Ticker"] == ticker, "Close"].item()  # buy at today's close
-        future_price = prices.loc[prices["Ticker"] == ticker, "future_close"].item()  # sell at future close
+        future_price = prices.loc[prices["Ticker"] == ticker, "Adj Close"].item()  # sell at future close
 
         ### THRESHOLD BASED TRADING FOR INFO ON MODEL BEHAVIOR ###
         # using generated signal initiate a trade
@@ -134,7 +125,7 @@ for date in tqdm(eval_config.eval_dates, desc="Evaluating..."):
     eval_rets = []
     for ticker, signal_score in long_tickers + short_tickers:
         close_price = prices.loc[prices["Ticker"] == ticker, "Close"].item()
-        future_price = prices.loc[prices["Ticker"] == ticker, "future_close"].item()
+        future_price = prices.loc[prices["Ticker"] == ticker, "Adj Close"].item()
 
         # Calculate value change based on long or short position
         if ticker in dict(long_tickers):
