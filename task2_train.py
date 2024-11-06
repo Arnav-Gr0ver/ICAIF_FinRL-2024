@@ -87,7 +87,7 @@ lora_config = LoraConfig(
     task_type=TaskType.CAUSAL_LM,
     inference_mode=False,
     r=30,
-    target_modules=["q_proj", "v_proj"],
+    target_modules=["attention.self.query", "attention.self.value"],
     lora_alpha=16,
     lora_dropout=0.1,
     bias="none",
@@ -166,6 +166,10 @@ for step in tqdm(
     if done:
         break
 
+save_directory = "data/"
+
+model.save_pretrained(save_directory)
+tokenizer.save_pretrained(save_directory)
 
 # Create subplots
 plt.figure(figsize=(14, 10))
