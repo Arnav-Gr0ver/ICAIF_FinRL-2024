@@ -168,6 +168,7 @@ for step in tqdm(
 
 save_directory = "data/"
 
+# Save the model and tokenizer
 model.save_pretrained(save_directory)
 tokenizer.save_pretrained(save_directory)
 
