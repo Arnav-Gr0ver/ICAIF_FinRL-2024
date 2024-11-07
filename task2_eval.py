@@ -14,7 +14,7 @@ from task2_config import Task2Config
 
 # Date ranges for the starter solution. You may withold some of the training data and use it as validation data
 END_DATE = "2020-01-31"
-START_DATE = "2020-01-01"
+START_DATE = "2020-01-02"
 
 """a very simple env whost state space is only the data"""
 STOCK_TICKERS_HIGHEST_CAP_US = [
@@ -28,7 +28,7 @@ STOCK_TICKERS_HIGHEST_CAP_US = [
 ]
 
 eval_config = Task2Config(
-    model_name="FacebookAI/roberta-base",
+    model_name="meta-llama/Llama-3.2-3B-Instruct",
     bnb_config=BitsAndBytesConfig(load_in_8bit=True),
     tickers=STOCK_TICKERS_HIGHEST_CAP_US,
     end_date=END_DATE,
@@ -92,7 +92,7 @@ for date in tqdm(eval_config.eval_dates, desc="Evaluating..."):
             model,
             device,
             news,
-            prices.copy().drop("Adj Close", axis=1)[prices["Ticker"] == ticker],
+            prices.copy().drop("future_close", axis=1)[prices["Ticker"] == ticker],
             eval_config.signal_strengh,
             eval_config.threshold,
         )
@@ -100,7 +100,7 @@ for date in tqdm(eval_config.eval_dates, desc="Evaluating..."):
         ticker_signals[ticker] = signal_score
 
         close_price = prices.loc[prices["Ticker"] == ticker, "Close"].item()  # buy at today's close
-        future_price = prices.loc[prices["Ticker"] == ticker, "Adj Close"].item()  # sell at future close
+        future_price = prices.loc[prices["Ticker"] == ticker, "future_close"].item()  # sell at future close
 
         ### THRESHOLD BASED TRADING FOR INFO ON MODEL BEHAVIOR ###
         # using generated signal initiate a trade
@@ -125,7 +125,7 @@ for date in tqdm(eval_config.eval_dates, desc="Evaluating..."):
     eval_rets = []
     for ticker, signal_score in long_tickers + short_tickers:
         close_price = prices.loc[prices["Ticker"] == ticker, "Close"].item()
-        future_price = prices.loc[prices["Ticker"] == ticker, "Adj Close"].item()
+        future_price = prices.loc[prices["Ticker"] == ticker, "future_close"].item()
 
         # Calculate value change based on long or short position
         if ticker in dict(long_tickers):

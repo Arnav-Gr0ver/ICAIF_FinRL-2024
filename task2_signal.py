@@ -9,25 +9,20 @@ You can improve the sentiment analysis here or generate your own signal.
 import re
 import torch
 
-SAMPLE_PROMPT = """Task: Analyze the following news headline about a stock and provide a sentiment score between -{signal_strengh} and {signal_strengh}. The sentiment score should predict the **short-term market movement** after the news release, considering both the **tone of the news** and the **recent market reaction**. Use the following scale:
+SAMPLE_PROMPT = """Task: Analyze the following news headline about a stock and provide a sentiment score between -{signal_strengh} and {signal_strengh}, where:
+- -{signal_strengh} means very negative sentiment
+- -{threshold} means neutral negative sentiment
+- 0 means neutral sentiment
+- {threshold} indicates neutral positive sentiment
+- {signal_strengh} means very positive sentiment
 
-- -{signal_strengh}: Strongly negative sentiment (likely to cause a significant price drop)
-- -{threshold}: Mildly negative sentiment (could lead to a slight decline or no major change)
-- 0: Neutral sentiment (no expected effect on stock price)
-- {threshold}: Mildly positive sentiment (could cause a slight increase in stock price)
-- {signal_strengh}: Strongly positive sentiment (likely to result in a significant price increase)
-
-For the sentiment analysis, consider the following:
-- The tone and content of the news (positive, negative, or neutral).
-- How the stock has reacted to similar news in the past.
-- Price movement data: Has the stock shown sensitivity to similar news in the past, or is the market generally indifferent?
-
-Based on these factors, generate a sentiment score to predict how the stock will likely move in the next 3 days **after the news release**. The score should reflect how the news is expected to affect **short-term price fluctuations**, not just its tone.
+Do not provide any explanations. Output only a single number in the range of -{signal_strengh} to {signal_strengh} based on the sentiment of the news. 
 
 News headline: "{news}"
+
 Price Data: "{prices}"
 
-Sentiment score:
+Generate only a single integer value for the sentiment score after the colon. Sentiment score:
 """
 
 

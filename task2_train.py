@@ -32,7 +32,7 @@ STOCK_TICKERS_HIGHEST_CAP_US = [
 ]
 
 train_config = Task2Config(
-    model_name="FacebookAI/roberta-base",
+    model_name="meta-llama/Llama-3.2-3B-Instruct",
     bnb_config=BitsAndBytesConfig(load_in_8bit=True),
     tickers=STOCK_TICKERS_HIGHEST_CAP_US,
     end_date=END_DATE,
@@ -87,7 +87,7 @@ lora_config = LoraConfig(
     task_type=TaskType.CAUSAL_LM,
     inference_mode=False,
     r=30,
-    target_modules=["attention.self.query", "attention.self.value"],
+    target_modules=["q_proj", "v_proj"],
     lora_alpha=16,
     lora_dropout=0.1,
     bias="none",
@@ -166,11 +166,6 @@ for step in tqdm(
     if done:
         break
 
-save_directory = "data/"
-
-# Save the model and tokenizer
-model.save_pretrained(save_directory)
-tokenizer.save_pretrained(save_directory)
 
 # Create subplots
 plt.figure(figsize=(14, 10))
