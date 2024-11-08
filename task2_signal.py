@@ -30,9 +30,8 @@ Price Data: "{prices}"
 
 Generate only a single integer value for the sentiment score after the colon. 
 
-Single Integer Sentiment score:
+Single Integer Sentiment score: [N]
 """
-
 
 def _generate_signal(tokenizer, model, device, news, prices, signal_strengh, threshold):
     """Using model forward pass to do backprop"""
