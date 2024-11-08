@@ -7,7 +7,6 @@ class Task2Config:
     def __init__(
         self,
         model_name,
-        bnb_config,
         tickers,
         end_date="",
         start_date="",
@@ -18,7 +17,6 @@ class Task2Config:
         max_train_steps=50
     ):
         self.model_name = model_name
-        self.bnb_config = bnb_config
         self.tickers = tickers
         self.end_date = end_date
         self.start_date = start_date

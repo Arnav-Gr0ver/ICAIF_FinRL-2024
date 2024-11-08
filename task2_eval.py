@@ -13,7 +13,7 @@ from task2_config import Task2Config
 
 
 # Date ranges for the starter solution. You may withold some of the training data and use it as validation data
-END_DATE = "2020-01-05"
+END_DATE = "2020-01-31"
 START_DATE = "2020-01-02"
 
 """a very simple env whost state space is only the data"""
@@ -29,7 +29,6 @@ STOCK_TICKERS_HIGHEST_CAP_US = [
 
 eval_config = Task2Config(
     model_name="meta-llama/Llama-3.2-3B-Instruct",
-    bnb_config=BitsAndBytesConfig(load_in_8bit=True),
     tickers=STOCK_TICKERS_HIGHEST_CAP_US,
     end_date=END_DATE,
     start_date=START_DATE,
@@ -48,7 +47,6 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")  # map to 
 tokenizer = AutoTokenizer.from_pretrained(eval_config.model_name)
 model = AutoModelForCausalLM.from_pretrained(
     eval_config.model_name,
-    quantization_config=eval_config.bnb_config,
     device_map="auto",
 )
 
