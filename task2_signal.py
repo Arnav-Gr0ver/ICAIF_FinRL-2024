@@ -9,22 +9,31 @@ You can improve the sentiment analysis here or generate your own signal.
 import re
 import torch
 
-SAMPLE_PROMPT = """Task: Analyze the following news headline about a stock and provide a sentiment score between -{signal_strengh} and {signal_strengh}, where:
-- -{signal_strengh} means very negative sentiment
-- -{threshold} means neutral negative sentiment
-- 0 means neutral sentiment
-- {threshold} indicates neutral positive sentiment
-- {signal_strengh} means very positive sentiment
+SAMPLE_PROMPT = """
+Task: Evaluate the following news headline regarding a stock and assign a sentiment score between -{signal_strengh} and {signal_strengh} based on its likely impact on stock sentiment. Consider the following factors in your analysis:
 
-Do not provide any explanations. Output only a single number in the range of -{signal_strengh} to {signal_strengh} based on the sentiment of the news. 
+- Financial Performance Indicators: Is the headline suggesting improved or weakened financials (e.g., profit, revenue, margins)? Positive indicators should increase the score, while negative indicators should lower it.
 
-News headline: "{news}"
+- Market Sentiment and Public Perception: Is the sentiment around the company's actions, such as innovation, partnerships, or social impact, likely to influence its stock positively or negatively?
 
+- Competitive Positioning and Industry Impact: Does the news indicate a competitive edge or a disadvantage? For example, winning market share or regulatory issues can shift sentiment accordingly.
+
+- Macro Events and Trends: Is the news affected by larger trends like inflation, recession fears, or industry-wide challenges? Factor these into the score where relevant.
+
+Score interpretations:
+- -{signal_strengh}: Very negative sentiment, implying substantial negative impact.
+- -{threshold}: Moderately negative, potentially impacting stock with a slight downtrend.
+- 0: Neutral, likely no immediate impact.
+- {threshold}: Moderately positive, suggesting potential for slight growth.
+- {signal_strengh}: Very positive, likely to drive significant stock appreciation.
+
+Output only a single integer value in the range -{signal_strengh} to {signal_strengh} that best represents the sentiment.
+
+News Headline: "{news}"
 Price Data: "{prices}"
 
-Generate only a single integer value for the sentiment score after the colon. Sentiment score:
+Sentiment score:
 """
-
 
 def _generate_signal(tokenizer, model, device, news, prices, signal_strengh, threshold):
     """Using model forward pass to do backprop"""
