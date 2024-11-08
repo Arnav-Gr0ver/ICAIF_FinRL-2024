@@ -41,7 +41,7 @@ def _generate_signal(tokenizer, model, device, news, prices, signal_strengh, thr
 
     generated_ids = inputs["input_ids"]
     log_probs = []
-    max_new_tokens = 5
+    max_new_tokens = 1
 
     for _ in range(max_new_tokens):
         outputs = model(input_ids=generated_ids)
