@@ -166,6 +166,8 @@ for step in tqdm(
     if done:
         break
 
+model.save_pretrained("task2_model")
+tokenizer.save_pretrained("task2_tokenizer")
 
 # Create subplots
 plt.figure(figsize=(14, 10))

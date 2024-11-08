@@ -10,29 +10,27 @@ import re
 import torch
 
 SAMPLE_PROMPT = """
-Task: Evaluate the following news headline regarding a stock and assign a sentiment score between -{signal_strengh} and {signal_strengh} based on its likely impact on stock sentiment. Consider the following factors in your analysis:
+Task: Analyze the following news headline about a stock and provide a sentiment score between -{signal_strengh} and {signal_strengh}, where:
+- -{signal_strengh} represents a highly negative sentiment, likely indicating a substantial decline in stock performance.
+- -{threshold} represents a moderate negative sentiment, suggesting a slight potential decline in stock performance.
+- 0 represents neutral sentiment, indicating no significant impact on stock performance.
+- {threshold} represents a moderate positive sentiment, indicating potential for slight stock growth.
+- {signal_strengh} represents a highly positive sentiment, indicating significant potential for stock appreciation.
 
-- Financial Performance Indicators: Is the headline suggesting improved or weakened financials (e.g., profit, revenue, margins)? Positive indicators should increase the score, while negative indicators should lower it.
+Consider the likely influence of market feedback from previous price movements and sentiment trends:
+- How has the stock's price responded to similar news in the past?
+- Does the headline align with prevailing market sentiment, or does it contradict current trends?
+- How might this sentiment lead to a change in the stock's behavior, considering both historical price patterns and market expectations?
 
-- Market Sentiment and Public Perception: Is the sentiment around the company's actions, such as innovation, partnerships, or social impact, likely to influence its stock positively or negatively?
+Do not provide any explanations or reasoning. Output only a single integer in the range of -{signal_strengh} to {signal_strengh} based on the sentiment of the news and its potential impact on stock performance.
 
-- Competitive Positioning and Industry Impact: Does the news indicate a competitive edge or a disadvantage? For example, winning market share or regulatory issues can shift sentiment accordingly.
+News headline: "{news}"
 
-- Macro Events and Trends: Is the news affected by larger trends like inflation, recession fears, or industry-wide challenges? Factor these into the score where relevant.
-
-Score interpretations:
-- -{signal_strengh}: Very negative sentiment, implying substantial negative impact.
-- -{threshold}: Moderately negative, potentially impacting stock with a slight downtrend.
-- 0: Neutral, likely no immediate impact.
-- {threshold}: Moderately positive, suggesting potential for slight growth.
-- {signal_strengh}: Very positive, likely to drive significant stock appreciation.
-
-Output only a single integer value in the range -{signal_strengh} to {signal_strengh} that best represents the sentiment.
-
-News Headline: "{news}"
 Price Data: "{prices}"
 
-Sentiment score:
+Generate only a single integer value for the sentiment score after the colon. 
+
+Single Integer Sentiment score:
 """
 
 def _generate_signal(tokenizer, model, device, news, prices, signal_strengh, threshold):
@@ -42,7 +40,7 @@ def _generate_signal(tokenizer, model, device, news, prices, signal_strengh, thr
 
     generated_ids = inputs["input_ids"]
     log_probs = []
-    max_new_tokens = 5
+    max_new_tokens = 1
 
     for _ in range(max_new_tokens):
         outputs = model(input_ids=generated_ids)
@@ -75,6 +73,7 @@ def _generate_eval_signal(tokenizer, model, device, news, prices, signal_strengh
     input = tokenizer(prompt, return_tensors="pt").to(device)
     outputs = model.generate(**input, max_new_tokens=5, pad_token_id=tokenizer.eos_token_id)
     output_string = tokenizer.decode(outputs[0], skip_special_tokens=True).strip()
+    print(output_string)
     match = re.search(r"Sentiment score:\s*(-?\d+(?:\.\d+)?)", output_string)
     return float(match.group(1)) if match else 0
 
