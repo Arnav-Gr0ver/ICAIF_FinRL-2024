@@ -11,16 +11,21 @@ import torch
 
 SAMPLE_PROMPT = """
 Task: Analyze the following news headline about a stock and provide a sentiment score between -{signal_strengh} and {signal_strengh}, where:
-- -{signal_strengh} represents a highly negative sentiment, likely indicating a substantial decline in stock performance.
-- -{threshold} represents a moderate negative sentiment, suggesting a slight potential decline in stock performance.
-- 0 represents neutral sentiment, indicating no significant impact on stock performance.
-- {threshold} represents a moderate positive sentiment, indicating potential for slight stock growth.
-- {signal_strengh} represents a highly positive sentiment, indicating significant potential for stock appreciation.
+-{signal_strengh} represents a highly negative sentiment, likely indicating a substantial decline in stock performance.
+-{threshold} represents a moderate negative sentiment, suggesting a slight potential decline in stock performance.
+0 represents neutral sentiment, indicating no significant impact on stock performance.
+{threshold} represents a moderate positive sentiment, indicating potential for slight stock growth.
+{signal_strengh} represents a highly positive sentiment, indicating significant potential for stock appreciation.
 
 Consider the likely influence of market feedback from previous price movements and sentiment trends:
-- How has the stock's price responded to similar news in the past?
-- Does the headline align with prevailing market sentiment, or does it contradict current trends?
-- How might this sentiment lead to a change in the stock's behavior, considering both historical price patterns and market expectations?
+How has the stock's price responded to similar news in the past?
+Does the headline align with prevailing market sentiment, or does it contradict current trends?
+How might this sentiment lead to a change in the stock's behavior, considering both historical price patterns and market expectations?
+
+Examples of sentiment scoring:
+"Company X announces layoffs amidst economic downturn." SENTIMENT SCORE: -8
+"Company Y reports record revenue growth in Q1." SENTIMENT SCORE: 7
+"Market sees strong response to Company Z’s new product release." SENTIMENT SCORE: 5
 
 Do not provide any explanations or reasoning. Output only a single integer in the range of -{signal_strengh} to {signal_strengh} based on the sentiment of the news and its potential impact on stock performance.
 
@@ -28,9 +33,7 @@ News headline: "{news}"
 
 Price Data: "{prices}"
 
-Generate only a single integer value for the sentiment score after the colon. 
-
-Single Integer Sentiment score: [N]
+SENTIMENT SCORE:
 """
 
 def _generate_signal(tokenizer, model, device, news, prices, signal_strengh, threshold):
@@ -40,7 +43,7 @@ def _generate_signal(tokenizer, model, device, news, prices, signal_strengh, thr
 
     generated_ids = inputs["input_ids"]
     log_probs = []
-    max_new_tokens = 1
+    max_new_tokens = 5
 
     for _ in range(max_new_tokens):
         outputs = model(input_ids=generated_ids)
@@ -60,7 +63,7 @@ def _generate_signal(tokenizer, model, device, news, prices, signal_strengh, thr
 
     output_string = tokenizer.decode(generated_ids[0], skip_special_tokens=True).strip()
 
-    match = re.search(r"Sentiment score:\s*(-?\d+(?:\.\d+)?)", output_string)
+    match = re.search(r"SENTIMENT SCORE:\s*(-?\d+(?:\.\d+)?)", output_string)
     signal_strengh = float(match.group(1)) if match else 0
 
     return signal_strengh, total_log_prob
@@ -73,7 +76,7 @@ def _generate_eval_signal(tokenizer, model, device, news, prices, signal_strengh
     input = tokenizer(prompt, return_tensors="pt").to(device)
     outputs = model.generate(**input, max_new_tokens=5, pad_token_id=tokenizer.eos_token_id)
     output_string = tokenizer.decode(outputs[0], skip_special_tokens=True).strip()
-    match = re.search(r"Sentiment score:\s*(-?\d+(?:\.\d+)?)", output_string)
+    match = re.search(r"SENTIMENT SCORE:\s*(-?\d+(?:\.\d+)?)", output_string)
     return float(match.group(1)) if match else 0
 
 
