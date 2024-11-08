@@ -23,9 +23,9 @@ Does the headline align with prevailing market sentiment, or does it contradict 
 How might this sentiment lead to a change in the stock's behavior, considering both historical price patterns and market expectations?
 
 Examples of sentiment scoring:
-"Company X announces layoffs amidst economic downturn." SENTIMENT SCORE: -8
-"Company Y reports record revenue growth in Q1." SENTIMENT SCORE: 7
-"Market sees strong response to Company Z’s new product release." SENTIMENT SCORE: 5
+"Company X announces layoffs amidst economic downturn." Score: -8
+"Company Y reports record revenue growth in Q1." Score: 7
+"Market sees strong response to Company Z’s new product release." Score: 5
 
 Do not provide any explanations or reasoning. Output only a single integer in the range of -{signal_strengh} to {signal_strengh} based on the sentiment of the news and its potential impact on stock performance.
 
