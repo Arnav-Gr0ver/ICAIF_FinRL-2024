@@ -33,7 +33,7 @@ STOCK_TICKERS_HIGHEST_CAP_US = [
 
 train_config = Task2Config(
     model_name="meta-llama/Llama-3.2-3B-Instruct",
-    bnb_config=None,
+    bnb_config=BitsAndBytesConfig(load_in_8bit=True),
     tickers=STOCK_TICKERS_HIGHEST_CAP_US,
     end_date=END_DATE,
     start_date=START_DATE,
@@ -50,6 +50,16 @@ stock_data = pd.read_csv("task2_stocks.csv")
 """load model and env"""
 from task2_env import Task2Env
 
+bnb_config_4 = BitsAndBytesConfig(
+    load_in_4bit=True,
+    bnb_4bit_compute_dtype=torch.bfloat16,  # or torch.bfloat16
+    bnb_4bit_use_double_quant=False,
+    bnb_4bit_quant_type="fp4",  # 'nf4' or 'fp4'
+)
+
+bnb_config_8 = BitsAndBytesConfig(load_in_8bit=True)
+
+
 num_gpus = torch.cuda.device_count()
 max_memory = {i: "22GiB" for i in range(num_gpus)}
 
@@ -59,6 +69,8 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")  # map to 
 tokenizer = AutoTokenizer.from_pretrained(train_config.model_name)
 model = AutoModelForCausalLM.from_pretrained(
     train_config.model_name,
+    quantization_config=bnb_config_4,
+    # quantization_config=bnb_config_4,
     device_map="auto",
     # max_memory=max_memory,
 )
@@ -154,8 +166,6 @@ for step in tqdm(
     if done:
         break
 
-model.save_pretrained("task2_model")
-tokenizer.save_pretrained("task2_tokenizer")
 
 # Create subplots
 plt.figure(figsize=(14, 10))
