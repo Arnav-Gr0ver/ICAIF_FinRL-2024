@@ -17,7 +17,7 @@ from task2_config import Task2Config
 
 
 # Date ranges for the starter solution
-END_DATE = "2023-12-16"
+END_DATE = "2022-12-31"
 START_DATE = "2020-01-01"
 
 """a very simple env whost state space is only the data"""
